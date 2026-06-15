@@ -33,6 +33,9 @@ export function renderSections() {
   const openSet = new Set(
     [...document.querySelectorAll(".section.open")].map((s) => s.dataset.sid)
   );
+  const expandedSet = new Set(
+    [...document.querySelectorAll(".check.expanded")].map((li) => li.dataset.iid)
+  );
   host.innerHTML = "";
   let secNum = 0;
 
@@ -90,29 +93,66 @@ export function renderSections() {
       sub.items.forEach((it, iI) => {
         const id = itemId(sec.id, subI, iI);
         const isDone = !!state[id];
+        const isExpanded = expandedSet.has(id);
+        const hasMore = !!(it.desc || it.hint);
         const li = document.createElement("li");
-        li.className = "check" + (isDone ? " done" : "");
-        li.setAttribute("role", "checkbox");
-        li.setAttribute("aria-checked", isDone);
-        li.setAttribute("tabindex", "0");
+        li.className =
+          "check" + (isDone ? " done" : "") + (isExpanded ? " expanded" : "");
+        li.dataset.iid = id;
         const tag = it.tag
           ? `<span class="tag ${it.tag}">${it.tag === "crit" ? "must-have" : "recommended"}</span>`
           : "";
-        const hint = it.hint ? `<span class="hint">${it.hint}</span>` : "";
-        li.innerHTML = `<span class="box">${checkSVG}</span><span class="ctext">${it.t}${tag}${hint}</span><button class="copy-item" type="button" title="Copy this item">copy</button>`;
+        const desc = it.desc ? `<div class="cdesc-text">${it.desc}</div>` : "";
+        const example = it.hint
+          ? `<div class="cexample"><span class="cex-label">e.g.</span>${it.hint}</div>`
+          : "";
+        const panel = hasMore
+          ? `<div class="cdesc"><div class="cdesc-inner">${desc}${example}</div></div>`
+          : "";
+        const chev = hasMore ? `<span class="chev-i">▶</span>` : "";
+        li.innerHTML =
+          `<span class="box" role="checkbox" aria-checked="${isDone}" tabindex="0" title="Mark done">${checkSVG}</span>` +
+          `<div class="cbody">` +
+            `<div class="crow"${hasMore ? ` role="button" tabindex="0" aria-expanded="${isExpanded}"` : ""}>` +
+              `<span class="ctext">${it.t}${tag}</span>${chev}` +
+            `</div>${panel}` +
+          `</div>` +
+          `<button class="copy-item" type="button" title="Copy this item">copy</button>`;
+
+        const box = li.querySelector(".box");
         const flip = () => {
           state[id] = !state[id];
           if (!state[id]) delete state[id];
           saveState();
           renderAll();
         };
-        li.onclick = flip;
-        li.onkeydown = (e) => {
+        box.onclick = (e) => {
+          e.stopPropagation();
+          flip();
+        };
+        box.onkeydown = (e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
+            e.stopPropagation();
             flip();
           }
         };
+
+        if (hasMore) {
+          const crow = li.querySelector(".crow");
+          const toggle = () => {
+            const now = li.classList.toggle("expanded");
+            crow.setAttribute("aria-expanded", now);
+          };
+          crow.onclick = toggle;
+          crow.onkeydown = (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              toggle();
+            }
+          };
+        }
+
         const copyBtn = li.querySelector(".copy-item");
         copyBtn.onclick = (e) => {
           e.stopPropagation();

@@ -441,7 +441,6 @@ li.check {
   align-items: flex-start;
   padding: 0.5rem 0.6rem;
   border-radius: 8px;
-  cursor: pointer;
   transition: background 0.12s;
 }
 li.check:hover {
@@ -458,6 +457,10 @@ li.check:hover {
   place-items: center;
   transition: 0.15s;
   background: var(--bg);
+  cursor: pointer;
+}
+.box:hover {
+  border-color: var(--acc-deep);
 }
 .box svg {
   width: 11px;
@@ -474,7 +477,19 @@ li.check.done .box svg {
   opacity: 1;
   transform: scale(1);
 }
+.cbody {
+  flex: 1;
+  min-width: 0;
+}
+.crow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  cursor: pointer;
+}
 .ctext {
+  flex: 1;
+  min-width: 0;
   font-size: 0.92rem;
   color: var(--ink);
   transition: 0.15s;
@@ -484,15 +499,54 @@ li.check.done .ctext {
   text-decoration: line-through;
   text-decoration-color: var(--ink-faint);
 }
-.ctext .hint {
-  display: block;
-  font-size: 0.78rem;
+.chev-i {
+  flex-shrink: 0;
+  font-size: 0.6rem;
   color: var(--ink-faint);
-  text-decoration: none;
-  margin-top: 0.12rem;
-  font-family: var(--mono);
+  margin-top: 0.32rem;
+  transition: transform 0.18s, color 0.15s;
 }
-li.check.done .ctext .hint {
+.crow:hover .chev-i {
+  color: var(--ink-dim);
+}
+li.check.expanded .chev-i {
+  transform: rotate(90deg);
+  color: var(--rust);
+}
+.cdesc {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.2s ease;
+}
+li.check.expanded .cdesc {
+  grid-template-rows: 1fr;
+}
+.cdesc-inner {
+  overflow: hidden;
+}
+.cdesc-text {
+  font-size: 0.83rem;
+  line-height: 1.55;
+  color: var(--ink-dim);
+  padding: 0.4rem 0 0.1rem;
+  max-width: 72ch;
+}
+.cexample {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--ink-faint);
+  margin-top: 0.4rem;
+  padding-left: 0.6rem;
+  border-left: 2px solid var(--line);
+  max-width: 72ch;
+}
+.cex-label {
+  color: var(--rust);
+  margin-right: 0.35rem;
+}
+li.check.done .cdesc-text,
+li.check.done .cexample {
   opacity: 0.6;
 }
 .tag {
